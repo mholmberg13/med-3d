@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import NewUser from './components/NewUser.js'
+import AuthOptions from './components/AuthOptions'
+import Home from './components/Home';
+import NewUser from './components/NewUser';
+import Login from './components/Login';
 import './App.css';
-import UserContext from './components/context/UserContext'
-import Axios from 'axios'
+import UserContext from './components/context/UserContext';
+import Axios from 'axios';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 const baseURL = 'http://localhost:3004'
 
@@ -27,9 +31,9 @@ export default function App() {
         null,
         {headers: { "x-auth-token": token}}
       )
-      console.log(tokenRes.data)
+      
       if (tokenRes.data) {
-        const userRes = await Axios.get("http://localhost:5000/users/", {
+        const userRes = await Axios.get("http://localhost:3004/users/", {
           headers: {"x-auth-token": token}
         })
         setUserData({
@@ -41,20 +45,20 @@ export default function App() {
     checkLoggedIn()
   }, [])
 
-  // handleAddUser = (user) => {
-  //   const copyUsers = [...this.state.users]
-  //   copyUsers.unshift(user)
-  //   this.setState({
-  //     users: copyUsers
-  //   })
-  // }
-
     return (
-      <div className="App">
-        <UserContext.Provider value={{ userData, setUserData }}>
-        <NewUser baseURL={baseURL}/>
-        </UserContext.Provider>
-      </div>
+      <>
+        <BrowserRouter>
+          <UserContext.Provider value={{ userData, setUserData }}>
+            <AuthOptions/>
+            <Switch>
+              <Route exact path='/' component={Home} />
+              <Route path='/login' component={Login} />
+              <Route path='/register' component={NewUser} />
+            </Switch>
+          </UserContext.Provider>
+        </BrowserRouter>
+      </>
+      
     );
 
 }

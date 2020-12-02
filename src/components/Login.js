@@ -1,29 +1,51 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
+import UserContext from '../components/context/UserContext'
+import Axios from 'axios';
+import ErrorNotice from './misc/ErrorNotice';
 
+export default function Login()  {
 
-class Login extends React.Component {
+    const [email, setEmail] = useState();
+    const [password, setPassword] = useState();
+    const [error, setError] = useState();
 
-    state = {
-        email: '',
-        password: ''
-    }
+    const {setUserData} = useContext(UserContext);
+    const history = useHistory();
+    
+    const submit = async (e) => {
+        e.preventDefault();
+        try {
+            const loginUser = {email, password};
+            const loginRes = await Axios.post('http://localhost:3004/users/login', loginUser);
 
-    handleChange = (event) => {
-        this.setState({ [event.target.id]: event.target.value})
-    }
+            setUserData({
+                token: loginRes.data.token,
+                user: loginRes.data.user
+            });
 
-    render() {
-        return(
-            <div>
-                <form>
-                <label htmlFor='email'></label>
-                    <input type='text' id="email" name="email" onChange={this.handleChange} value={this.state.email} placeholder="Email"/>
-                    <label htmlFor='password'></label>
-                    <input type='text' id="password" name="password" onChange={this.handleChange} value={this.state.password} placeholder="Password"/>
-                </form>
-            </div>
-        )
-    }
+            localStorage.setItem('auth-token', loginRes.data.token);
+
+            history.push("/");
+        } catch (err) {
+            err.response.data.msg && setError(err.response.data.msg);
+        }
+
+    };
+
+    return(
+        <div>
+            { error && (
+                <ErrorNotice message={error} clearError={() => setError(undefined)}/>
+            )}
+            <form onSubmit={submit}>
+                <label htmlFor='login-email'>Email</label>
+                <input type='email' id="login-email" onChange={(e) => setEmail(e.target.value)} placeholder="Email"/>
+                <label htmlFor='login-password'>Password</label>
+                <input type='password' id="login-password" onChange={(e) => setPassword(e.target.value)} placeholder="Password"/>
+
+                <input type='submit' value='Log In'/>
+            </form>
+        </div>
+    )
 }
-
-export default Login;

@@ -1,54 +1,54 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
+import UserContext from '../components/context/UserContext'
+import Axios from 'axios';
 
 
-class NewUser extends React.Component {
+export default function NewUser() {
+    const [email, setEmail] = useState();
+    const [password, setPassword] = useState();
+    const [passwordCheck, setPasswordCheck] = useState();
+    const [displayName, setDisplayName] = useState();
 
-    state = {
-        username: '',
-        email: '',
-        password: ''
+    const {setUserData} = useContext(UserContext);
+
+    const history = useHistory();
+
+    const submit = async (e) => {
+        e.preventDefault();
+        const newUser = {email, password, passwordCheck, displayName};
+        await Axios.post("http://localhost:3004/users/register", newUser);
+        const loginRes = await Axios.post('http://localhost:3004/users/login', { 
+            email, 
+            password
+        });
+
+        setUserData({
+            token: loginRes.data.token,
+            user: loginRes.data.user
+        });
+
+        localStorage.setItem('auth-token', loginRes.data.token);
+
+        history.push("/");
+
     }
 
-    handleChange = (event) => {
-        this.setState({ [event.target.id]: event.target.value})
-    }
-
-    handleSubmit = (event) => {
-        event.preventDefault()
-        console.log(this.props.baseURL)
-        fetch(this.props.baseURL + '/users', {
-            method: 'POST',
-            body: JSON.stringify({username: this.state.username, email: this.state.email, password: this.state.password}),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then (res => res.json())
-        .then (resJson => {
-            this.props.handleAddUser(resJson)
-            this.setState({
-                username: '',
-                email: '',
-                password: ''
-            })
-        }).catch (error => console.log({'Error' : error}))
-    }
-
-    render() {
         return (
             <div>
-                <form onSubmit={this.handleSubmit}>
-                    <label htmlFor='username'></label>
-                    <input type='text' id="username" name="username" onChange={this.handleChange} value={this.state.username} placeholder="Username"/>
-                    <label htmlFor='email'></label>
-                    <input type='text' id="email" name="email" onChange={this.handleChange} value={this.state.email} placeholder="Email"/>
-                    <label htmlFor='password'></label>
-                    <input type='text' id="password" name="password" onChange={this.handleChange} value={this.state.password} placeholder="Password"/>
-                    <input type='text' id="confirm" name="confirm" onChange={this.handleChange} value={this.state.password} placeholder="Confirm Password"/>
+                <form onSubmit={submit}>
+                    <label htmlFor='display-name'>User Name</label>
+                    <input type='text' id="username" name="username" placeholder="Username" onChange={e => setDisplayName(e.target.value)}/>
+                    
+                    <label htmlFor='email'>Email</label>
+                    <input type='email' id="email" name="email" placeholder="Email" onChange={e => setEmail(e.target.value)}/>
+                    
+                    <label htmlFor='password'>Password</label>
+                    <input type='text' id="password" name="password" placeholder="Password" onChange={e => setPassword(e.target.value)}/>
+                    
+                    <input type='text' id="confirm" name="confirm" placeholder="Confirm Password" onChange={e => setPasswordCheck(e.target.value)}/>
                     <input type="submit" value="Create User"/>
                 </form>
             </div>
         )
-    }
 }
-
-export default NewUser
