@@ -1,6 +1,7 @@
 import React, { useEffect, useContext } from 'react';
 import {useHistory} from 'react-router-dom';
 import UserContext from './context/UserContext';
+import NewOrder from './NewOrder';
 
 export default function Home() {
     
@@ -15,6 +16,7 @@ export default function Home() {
     return(
         <div>
             <h1>Home</h1>
+            <NewOrder/>
         </div>
     )
 };

@@ -3,6 +3,7 @@ import AuthOptions from './components/AuthOptions'
 import Home from './components/Home';
 import NewUser from './components/NewUser';
 import Login from './components/Login';
+import NewOrder from './components/NewOrder';
 import './App.css';
 import UserContext from './components/context/UserContext';
 import Axios from 'axios';
